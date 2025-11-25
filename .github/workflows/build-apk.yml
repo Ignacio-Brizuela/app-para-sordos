@@ -34,11 +34,20 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython==0.29.33
     
-    - name: 🧹 Clean buildozer cache
+    - name: 💾 Cache Buildozer global directory
+      uses: actions/cache@v3
+      with:
+        path: ~/.buildozer
+        key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+    
+    - name: 💾 Cache Buildozer local directory
+      uses: actions/cache@v3
+      with:
+        path: .buildozer
+        key: buildozer-local-${{ hashFiles('buildozer.spec') }}
+    
+    - name: 🧹 Clean Python cache only
       run: |
-        rm -rf ~/.buildozer
-        rm -rf .buildozer
-        rm -rf bin
         find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
         find . -type f -name "*.pyc" -delete 2>/dev/null || true
     
@@ -47,7 +56,7 @@ jobs:
         buildozer android debug
     
     - name: 📤 Upload APK artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: app-para-sordos-v0.3
         path: bin/*.apk
